@@ -1,0 +1,22 @@
+{
+  "name": "com.swipeu.uiprimitive",
+  "version": "0.0.1",
+  "displayName": "UI Primitive",
+  "description": "UIPrimitive provides provides a set of UI components that can be used to create primitives for ugui",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Swipeu/UIPrimitive.git"
+  },
+  "author": {
+    "name": "Swipeu",
+    "url": "https://github.com/Swipeu"
+  },
+  "dependencies": {
+    "com.unity.ugui": "1.0.0"
+  },
+  "keywords": [
+    "ui",
+    "primitive"
+  ]
+}

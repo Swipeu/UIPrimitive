@@ -1,0 +1,18 @@
+{
+    "name": "Swipeu.UIPrimitive.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:40c51371aa5064dbf8eab0bb9b0a249d"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
