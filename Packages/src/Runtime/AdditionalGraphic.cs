@@ -1,8 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Swipeu.UIPrimitive
 {
@@ -31,10 +29,7 @@ namespace Swipeu.UIPrimitive
             InstanceComponent.TransformSettings.Copy(transformSettings);
 
             // Handle inner shadow
-            if (visualSettings != null 
-                && visualSettings.innerShadow 
-                && transformSettings != null 
-                && transformSettings.positionOffset != Vector2.zero)
+            if (visualSettings != null && visualSettings.innerShadow)
             {
                 AddInnerShadow(points);
             }
@@ -115,7 +110,7 @@ namespace Swipeu.UIPrimitive
                 int nextOutlineIdx = combinedPoints[next].OutlineIndex;
 
                 // Check if OutlineIndex is chained or wrapped
-                if (nextOutlineIdx == ((currOutlineIdx + 1) % combinedPoints.Count))
+                if (nextOutlineIdx == currOutlineIdx + 1 || nextOutlineIdx == 0)
                 {
                     int origA = i;
                     int shadowA = i + 1;
@@ -127,7 +122,7 @@ namespace Swipeu.UIPrimitive
                     // Triangle 2: shadowA, origB, shadowB
                     shadowTriangles.Add(new Triangle(shadowA, origB, shadowB));
                 }
-                else if(startIndex < 0)
+                else if (startIndex < 0)
                 {
                     startIndex = i + 1;
                 }
@@ -140,7 +135,7 @@ namespace Swipeu.UIPrimitive
 
             combinedPoints.ForEach(p => p.OutlineIndex = -1);
 
-            for(int i = 0; i < startIndex; i += 2)
+            for (int i = 0; i < startIndex; i += 2)
             {
                 var point = remainingOriginalPoints.Dequeue();
                 remainingOriginalPoints.Enqueue(point);

@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
-using UnityEngine.Networking;
 using UnityEngine.UI;
 
 namespace Swipeu.UIPrimitive
@@ -58,7 +57,7 @@ namespace Swipeu.UIPrimitive
             }
         }
 
-        public override Color color 
+        public override Color color
         {
             get
             {
@@ -126,7 +125,7 @@ namespace Swipeu.UIPrimitive
 
         public void TriggerRefreshCache(bool setDirty)
         {
-            if(rectTransform.rect.width == 0 || rectTransform.rect.height == 0)
+            if (rectTransform.rect.width == 0 || rectTransform.rect.height == 0)
             {
                 uvs.Clear();
                 points.Clear();
@@ -148,7 +147,7 @@ namespace Swipeu.UIPrimitive
 
             GetModifiedPointsAndTriangles(points, visualSettings, transformSettings, 0, out visualPoints, out visualTriangles, out uvs);
 
-            if(setDirty)
+            if (setDirty)
             {
                 foreach (var copyPrimitive in GetComponents<AdditionalGraphic>())
                 {
@@ -165,7 +164,16 @@ namespace Swipeu.UIPrimitive
             transformSettings = transformSettings ?? defaultTransformSettings;
 
             GetSizeOffsetPoints(originalPoints, -transformSettings.sizeOffset, out List<Point> sizeOffsetPoints);
-            GetPositionOffsetPoints(sizeOffsetPoints, visualSettings.innerShadow ? Vector3.zero : transformSettings.positionOffset, out List<Point> positionOffsetPoints);
+
+            List<Point> positionOffsetPoints = new List<Point>();
+            if (visualSettings.innerShadow)
+            {
+                positionOffsetPoints = new List<Point>(sizeOffsetPoints);
+            }
+            else
+            {
+                GetPositionOffsetPoints(sizeOffsetPoints, transformSettings.positionOffset, out positionOffsetPoints);
+            }
 
             if (visualSettings.outline && !visualSettings.glow)
             {
@@ -217,7 +225,7 @@ namespace Swipeu.UIPrimitive
                 {
                     List<Point> orderedPointsWithOutline = modifiedPoints.Where(p => p.OutlineIndex >= 0).OrderBy(p => p.OutlineIndex).ToList();
                     AntialiasingPass(.225f, .25f, orderedPointsWithOutline, modifiedPoints, modifiedTriangles);
-                    AntialiasingPass(.45f,  .5f, orderedPointsWithOutline, modifiedPoints, modifiedTriangles);
+                    AntialiasingPass(.45f, .5f, orderedPointsWithOutline, modifiedPoints, modifiedTriangles);
                 }
             }
 
@@ -292,7 +300,7 @@ namespace Swipeu.UIPrimitive
                 outlineUVs.Add(GetUVFromBounds(outlinePointsOffset[i].Position, bounds));
             }
 
-            for(int i = 0; i < outlinePoints.Count; i += 2)
+            for (int i = 0; i < outlinePoints.Count; i += 2)
             {
                 int point1Index = i;
                 int point2Index = i + 1;
@@ -410,7 +418,7 @@ namespace Swipeu.UIPrimitive
                 Vector2 vector3 = (vector1 + vector2);
                 Vector2 vector3Normal = (vector1 + vector2).normalized;
 
-                List<Point> pointList =  new List<Point>();
+                List<Point> pointList = new List<Point>();
 
                 // Check the the graphic is concave with the help of cross product
                 if (Mathf.Sign(vector1Normal.x * vector2Normal.y - vector1Normal.y * vector2Normal.x) > 0)
@@ -503,7 +511,7 @@ namespace Swipeu.UIPrimitive
             if (!initiated)
                 TriggerRefreshCache(true);
 
-            foreach(var triangle in triangles)
+            foreach (var triangle in triangles)
             {
                 if (IsPointInsideTriangle(local, triangle, points))
                     return true;
@@ -542,25 +550,41 @@ namespace Swipeu.UIPrimitive
 #endif
 
         #region Math
-
         static bool IsPointInsideTriangle(Vector2 point, Triangle triangle, List<Point> availablePoints)
         {
+            Point a = triangle.GetPointA(availablePoints);
+            Point b = triangle.GetPointB(availablePoints);
+            Point c = triangle.GetPointC(availablePoints);
 
-            Vector2 pointA = triangle.GetPointA(availablePoints).Position;
-            Vector2 pointB = triangle.GetPointB(availablePoints).Position;
-            Vector2 pointC = triangle.GetPointC(availablePoints).Position;
+            // Use a hardcoded margin value instead of scaling  
+            const float margin = 0.01f; // Adjust this value as needed  
+            Vector2 center = (a.Position + b.Position + c.Position) / 3;
 
-            float combinedCross = Cross(pointA, pointB) + Cross(pointB, pointC) + Cross(pointC, pointA);
+            var positionA = a.Position + (a.Position - center).normalized * margin;
+            var positionB = b.Position + (b.Position - center).normalized * margin;
+            var positionC = c.Position + (c.Position - center).normalized * margin;
 
-            if (Mathf.Abs(combinedCross) <= approachingZero)
-                return false;
+            // Calculate vectors  
+            Vector2 v0 = positionC - positionA;
+            Vector2 v1 = positionB - positionA;
+            Vector2 v2 = point - positionA;
 
-            float weightA = (Cross(pointB, pointC) + Cross(point, pointB - pointC)) / combinedCross;
-            float weightB = (Cross(pointC, pointA) + Cross(point, pointC - pointA)) / combinedCross;
-            float weightC = (Cross(pointA, pointB) + Cross(point, pointA - pointB)) / combinedCross;
+            // Compute dot products  
+            float dot00 = Vector2.Dot(v0, v0);
+            float dot01 = Vector2.Dot(v0, v1);
+            float dot02 = Vector2.Dot(v0, v2);
+            float dot11 = Vector2.Dot(v1, v1);
+            float dot12 = Vector2.Dot(v1, v2);
 
-            // If all weights are in 0-1 range, the point is inside the triangle
-            return InsideRange(weightA, 0, 1) && InsideRange(weightB, 0, 1) && InsideRange(weightC, 0, 1);
+            // Compute barycentric coordinates  
+            float denom = dot00 * dot11 - dot01 * dot01;
+            if (Math.Abs(denom) < approachingZero) return false; // Avoid division by zero  
+            float invDenom = 1 / denom;
+            float u = (dot11 * dot02 - dot01 * dot12) * invDenom;
+            float v = (dot00 * dot12 - dot01 * dot02) * invDenom;
+
+            // Check if point is in triangle  
+            return (u >= 0) && (v >= 0) && (u + v <= 1);
         }
 
         static float Cross(Vector2 vectorA, Vector2 vectorB) => vectorA.x * vectorB.y - vectorA.y * vectorB.x;
