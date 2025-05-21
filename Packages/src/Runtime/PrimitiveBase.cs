@@ -215,17 +215,17 @@ namespace Swipeu.UIPrimitive
                     var outerPoints = modifiedPoints.Where((p, index) => index % 2 == 0).ToList();
                     var innerPoints = modifiedPoints.Where((p, index) => index % 2 == 1).Reverse().ToList();
 
-                    AntialiasingPass(.225f, .25f, outerPoints, modifiedPoints, modifiedTriangles);
-                    AntialiasingPass(.225f, .25f, innerPoints, modifiedPoints, modifiedTriangles);
+                    AntialiasingPass(.225f, .25f, outerPoints, modifiedPoints, modifiedTriangles, visualSettings.outlineWidth < 0);
+                    AntialiasingPass(.225f, .25f, innerPoints, modifiedPoints, modifiedTriangles, visualSettings.outlineWidth < 0);
 
-                    AntialiasingPass(.45f, .5f, outerPoints, modifiedPoints, modifiedTriangles);
-                    AntialiasingPass(.45f, .5f, innerPoints, modifiedPoints, modifiedTriangles);
+                    AntialiasingPass(.45f, .5f, outerPoints, modifiedPoints, modifiedTriangles, visualSettings.outlineWidth < 0);
+                    AntialiasingPass(.45f, .5f, innerPoints, modifiedPoints, modifiedTriangles, visualSettings.outlineWidth < 0);
                 }
                 else
                 {
                     List<Point> orderedPointsWithOutline = modifiedPoints.Where(p => p.OutlineIndex >= 0).OrderBy(p => p.OutlineIndex).ToList();
-                    AntialiasingPass(.225f, .25f, orderedPointsWithOutline, modifiedPoints, modifiedTriangles);
-                    AntialiasingPass(.45f, .5f, orderedPointsWithOutline, modifiedPoints, modifiedTriangles);
+                    AntialiasingPass(.225f, .25f, orderedPointsWithOutline, modifiedPoints, modifiedTriangles, visualSettings.outlineWidth < 0);
+                    AntialiasingPass(.45f, .5f, orderedPointsWithOutline, modifiedPoints, modifiedTriangles, visualSettings.outlineWidth < 0);
                 }
             }
 
@@ -237,15 +237,15 @@ namespace Swipeu.UIPrimitive
             });
         }
 
-        void AntialiasingPass(float width, float alpha, List<Point> points, List<Point> allPoints, List<Triangle> allTriangles)
+        void AntialiasingPass(float width, float alpha, List<Point> points, List<Point> allPoints, List<Triangle> allTriangles, bool isConcave)
         {
             var antialiasingPoints = new List<Point>();
             var antialiasingTriangles = new List<Triangle>();
 
-            if (points.Count <= 2 || width <= 0)
+            if (points.Count <= 2)
                 return;
 
-            GetSizeOffsetPoints(points, -width, out List<Point> pointsOffset, true);
+            GetSizeOffsetPoints(points, isConcave ? width : -width, out List<Point> pointsOffset, true);
 
             for (int i = 0; i < points.Count; i++)
             {
@@ -421,7 +421,9 @@ namespace Swipeu.UIPrimitive
                 List<Point> pointList = new List<Point>();
 
                 // Check the the graphic is concave with the help of cross product
-                if (Mathf.Sign(vector1Normal.x * vector2Normal.y - vector1Normal.y * vector2Normal.x) > 0)
+                float sign = Mathf.Sign(vector1Normal.x * vector2Normal.y - vector1Normal.y * vector2Normal.x);
+                // Check the the graphic is concave with the help of cross product
+                if (offset < 0 ? sign > 0 : sign <= 0)
                 {
                     // Use angle to check if the vectors are parallel with eachother
                     float angle = Vector2.SignedAngle(vector1, vector2);
