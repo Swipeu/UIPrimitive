@@ -143,15 +143,15 @@ namespace Swipeu.UIPrimitive
             if (!enabled)
                 return;
 
+            if (OriginalComponent == null)
+                return;
+
             if (copyInstance == null)
             {
                 TryInstantiate();
                 if (copyInstance == null)
                     return;
             }
-
-            if (OriginalComponent == null)
-                return;
 
             if (!copyInstance.gameObject.activeSelf)
                 copyInstance.gameObject.SetActive(true);
