@@ -314,16 +314,35 @@ MonoBehaviour:
   polygonPoints:
   - Point: {x: 10, y: 0}
     Alignment: 1
+    Smoothness: 0
+    Radius: 0
+    Radius_vec: {x: 0, y: 0}
   - Point: {x: 0, y: 20}
     Alignment: 1
+    Smoothness: 0
+    Radius: 0
+    Radius_vec: {x: 0, y: 0}
   - Point: {x: 20, y: 0}
     Alignment: 2
+    Smoothness: 0
+    Radius: 0
+    Radius_vec: {x: 0, y: 0}
   - Point: {x: 10, y: 0}
     Alignment: 3
+    Smoothness: 0
+    Radius: 0
+    Radius_vec: {x: 0, y: 0}
   - Point: {x: 0, y: 20}
     Alignment: 3
+    Smoothness: 0
+    Radius: 0
+    Radius_vec: {x: 0, y: 0}
   - Point: {x: 20, y: 0}
     Alignment: 4
+    Smoothness: 0
+    Radius: 0
+    Radius_vec: {x: 0, y: 0}
+  clampCorners: 0
 --- !u!222 &80469234
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1436,13 +1455,26 @@ MonoBehaviour:
     positionOffset: {x: 0, y: 0}
   polygonPoints:
   - Point: {x: 0, y: 0}
-    Alignment: 1
+    Alignment: 5
+    Smoothness: 16
+    Radius: 16
+    Radius_vec: {x: 0, y: 0}
   - Point: {x: 0, y: 0}
     Alignment: 2
+    Smoothness: 0
+    Radius: 0
+    Radius_vec: {x: 0, y: 0}
   - Point: {x: 0, y: 0}
     Alignment: 3
+    Smoothness: 0
+    Radius: 0
+    Radius_vec: {x: 0, y: 0}
   - Point: {x: 0, y: 0}
-    Alignment: 4
+    Alignment: 12
+    Smoothness: 16
+    Radius: 64
+    Radius_vec: {x: 32, y: 16}
+  clampCorners: 0
 --- !u!222 &1067221278
 CanvasRenderer:
   m_ObjectHideFlags: 0
