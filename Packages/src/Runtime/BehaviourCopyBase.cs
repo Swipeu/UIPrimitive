@@ -62,7 +62,9 @@ namespace Swipeu.UIPrimitive
 
         private void OnDestroy()
         {
-            if (copyInstance == null || UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode)
+            if (copyInstance == null 
+                || Application.isPlaying 
+                || UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode)
                 return;
 
             var instance = copyInstance.gameObject;

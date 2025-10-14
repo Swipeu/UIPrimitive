@@ -1,6 +1,6 @@
 {
   "name": "com.swipeu.uiprimitive",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "displayName": "UI Primitive",
   "description": "UIPrimitive provides provides a set of UI components that can be used to create primitives for ugui",
   "license": "MIT",
